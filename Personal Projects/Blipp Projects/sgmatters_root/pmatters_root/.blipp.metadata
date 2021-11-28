@@ -1,0 +1,12 @@
+{
+    "markers": [
+        {
+        "filename": "P_LR.jpg",
+        "detectmode": "onDetect"
+        },
+        {
+        "filename": "P_TB.jpg",
+        "detectmode": "onDetect"
+        }
+    ]
+}

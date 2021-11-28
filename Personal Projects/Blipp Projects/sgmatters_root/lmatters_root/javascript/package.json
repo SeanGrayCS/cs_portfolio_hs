@@ -1,0 +1,12 @@
+{
+    "version": "1.0.0",
+    "description": "Learning Matters to Sean Gray",
+    "main": "main.js",
+    "blipp" : {
+        "title": "Learning",
+        "shortTitle": "L"
+    },
+    "dependencies": {
+        "blippar": "1.8.7"
+    }
+}
