@@ -1,0 +1,76 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: namenum
+*/
+import java.io.*;
+import java.util.*;
+
+class namenum {
+  private static boolean validName;
+  private static HashSet<String> dict;
+  private static PrintWriter out;
+
+  public static void main (String [] args) throws IOException {
+    String f = "namenum.in";
+    String o = "namenum.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    BufferedReader dictin = new BufferedReader(new InputStreamReader(new FileInputStream("dict.txt")));
+
+    dict = new HashSet<>(6200);
+
+    while (dictin.ready()) {
+      dict.add(dictin.readLine());
+    }
+
+    validName = false;
+
+    String n = in.readLine();
+
+    fillNames(n, "");
+
+    if (!validName) {
+      out.println("NONE");
+    }
+
+    out.close();
+  }
+
+  private static void fillNames (String n, String name) {
+    if (n.length() == 0) {
+      if (dict.contains(name)) {
+	out.println(name);
+	validName = true;
+      }
+      return;
+    }
+
+    int val = Integer.parseInt("" + n.charAt(0));
+    n = n.substring(1);
+
+    char let = 'A';
+    let += ((val - 2)*3);
+    if (val > 7) {
+      let++;
+    }
+
+    name += let;
+    fillNames(n, name);
+
+    let++;
+    if (val == 7) {
+      let++;
+    }
+    name = name.substring(0, name.length()-1) + let;
+    fillNames(n, name);
+
+    let++;
+    name = name.substring(0, name.length()-1) + let;
+    fillNames(n, name);
+
+    return;
+  }
+}

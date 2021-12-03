@@ -1,0 +1,85 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: milk3
+*/
+import java.io.*;
+import java.util.*;
+
+class milk3 {
+  private static PriorityQueue<Integer> sols;
+  private static int[] buckets;
+  private static boolean[][][] visited; 
+
+  public static void main (String [] args) throws IOException {
+    sols = new PriorityQueue<>();
+
+    String f = "milk3.in";
+    String o = "milk3.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    buckets = new int[3];
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+
+    for (int i = 0; i < 3; i++) {
+      buckets[i] = Integer.parseInt(st.nextToken());
+    }
+
+    sols.offer(buckets[2]);
+    int[] amounts = {0, 0, buckets[2]};
+
+    visited = new boolean[21][21][21];
+    visited[0][0][buckets[2]] = true;
+
+    dfs(amounts, 2, 1, 0);
+
+    while (!sols.isEmpty()) {
+      out.print(sols.poll() + "" + ((sols.isEmpty()) ? "\n" : " "));
+    }
+
+    out.close();
+  }
+
+  public static void dfs (int[] amounts, int start, int end, int other) {
+
+    int startAmount = amounts[start];
+    int endAmount = amounts[end];
+    int startCap = buckets[start];
+    int endCap = buckets[end];
+
+    int maxFill = endCap - endAmount;
+
+    if (startAmount > maxFill) {
+      amounts[start] = startAmount - maxFill;
+      amounts[end] = endCap;
+    } else {
+      amounts[start] = 0;
+      amounts[end] = endAmount + startAmount;
+    }
+
+    if (visited[amounts[0]][amounts[1]][amounts[2]]) {
+      amounts[start] = startAmount;
+      amounts[end] = endAmount;
+      return;
+    }
+
+    visited[amounts[0]][amounts[1]][amounts[2]] = true;
+
+    if (amounts[0] == 0) {
+      sols.offer(amounts[2]);
+    }
+
+    dfs(amounts, end, start, other);
+    dfs(amounts, end, other, start);
+    dfs(amounts, other, start, end);
+    dfs(amounts, other, end, start);
+
+    amounts[start] = startAmount;
+    amounts[end] = endAmount;
+
+  }
+
+}

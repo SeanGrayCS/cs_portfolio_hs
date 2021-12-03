@@ -1,0 +1,35 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: ride
+*/
+import java.io.*;
+import java.util.*;
+
+class ride {
+  public static void main (String [] args) throws IOException {
+    String f = "ride.in";
+    String o = "ride.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    StringTokenizer st = new StringTokenizer(in.readLine().replaceAll("", " "));
+
+    int comet = 1;
+    while (st.hasMoreTokens()) {
+      comet *= st.nextToken().compareTo("@");
+    }
+
+    st = new StringTokenizer(in.readLine().replaceAll("", " "));
+
+    int group = 1;
+    while (st.hasMoreTokens()) {
+      group *= st.nextToken().compareTo("@"); 
+    }
+
+    out.println(((group % 47) == (comet % 47)) ? "GO" : "STAY");
+
+    out.close();
+  }
+}

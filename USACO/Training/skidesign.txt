@@ -1,0 +1,182 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: skidesign
+*/
+import java.io.*;
+import java.util.*;
+
+@SuppressWarnings("unchecked")
+
+class skidesign {
+  public static void main (String [] args) throws IOException {
+    String f = "skidesign.in";
+    String o = "skidesign.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    PriorityQueue<Hill> minPQ = new PriorityQueue<>();
+    PriorityQueue<Hill> maxPQ = new PriorityQueue<>((h1, h2) -> h1.compareToMax(h2));
+
+    for (int i = 0; i < n; i++) {
+      Hill hill = new Hill(Integer.parseInt(in.readLine()));
+      maxPQ.offer(hill);
+      minPQ.offer(hill);
+    }
+
+    PriorityQueue<Hill>[] pqArr;
+
+    Hill head = minPQ.poll();
+    maxPQ.remove(head);
+    pqArr = (PriorityQueue<Hill>[]) combineHead(minPQ, maxPQ, head);
+    minPQ = pqArr[0];
+    maxPQ = pqArr[1];
+
+    head = maxPQ.poll();
+    minPQ.remove(head);
+    pqArr = (PriorityQueue<Hill>[]) combineHead(maxPQ, minPQ, head);
+    maxPQ = pqArr[0];
+    minPQ = pqArr[1];
+
+    while (maxPQ.peek().getHeight() - minPQ.peek().getHeight() > 17) {
+      Hill min = minPQ.peek();
+      Hill max = maxPQ.peek();
+
+      if (min.compareCost(max) > 0) {
+	maxPQ.remove(minPQ.poll());
+	min.increaseHeight();
+
+	pqArr = (PriorityQueue<Hill>[]) combineHead(minPQ, maxPQ, min);
+	minPQ = pqArr[0];
+	maxPQ = pqArr[1];
+	continue;
+      }
+
+      minPQ.remove(maxPQ.poll());
+      max.decreaseHeight();
+
+      pqArr = (PriorityQueue<Hill>[]) combineHead(maxPQ, minPQ, max);
+      maxPQ = pqArr[0];
+      minPQ = pqArr[1];
+
+    }
+
+    int totalCost = 0;
+
+    Iterator<Hill> it = maxPQ.iterator();
+
+    while (it.hasNext()) {
+      totalCost += it.next().getCost();
+    }
+
+    out.println(totalCost);
+
+    out.close();
+  }
+
+  public static PriorityQueue[] combineHead (PriorityQueue<Hill> pq1, PriorityQueue<Hill> pq2, Hill newHead) {
+
+    Hill curHead = pq1.peek();
+    while (curHead.compareHeight(newHead) == 0) {
+      pq2.remove(pq1.poll());
+      newHead.addHill(curHead);
+      curHead = pq1.peek();
+    }
+
+    pq1.offer(newHead);
+    pq2.offer(newHead);
+
+    return new PriorityQueue[] {pq1, pq2};
+
+  }
+
+}
+
+class Hill implements Comparable<Hill> {
+
+  private int height;
+  private int cost;
+  private int nextCost;
+
+  private ArrayList<Integer> amountChanged;
+
+  public Hill(int height) {
+    this.height = height;
+    cost = 0;
+    nextCost = 1;
+    this.amountChanged = new ArrayList<>();
+    amountChanged.add(0);
+  }
+
+  public int getHeight() {
+    return height;
+  }
+
+  public int getCost() {
+    return cost;
+  }
+
+  public int getNextCost() {
+    return nextCost;
+  }
+
+  public ArrayList<Integer> getAmountChanged() {
+    return amountChanged;
+  }
+
+  public void addHill(Hill other) {
+    amountChanged.addAll(other.getAmountChanged());
+    updateCost();
+  }
+
+  public void decreaseHeight() {
+    height--;
+    increaseAmountChanged();
+  }
+
+  public void increaseHeight() {
+    height++;
+    increaseAmountChanged();
+  }
+
+  private void increaseAmountChanged() {
+    for (int i = 0; i < amountChanged.size(); i++) {
+      amountChanged.set(i, amountChanged.get(i)+1);
+    }
+    updateCost();
+  }
+
+  private void updateCost() {
+    int newCost = 0;
+    int newNextCost = 0;
+    for (int i = 0; i < amountChanged.size(); i++) {
+      int indivCost = amountChanged.get(i);
+      newCost += (indivCost*indivCost);
+      indivCost++;
+      newNextCost += (indivCost*indivCost);
+    }
+    cost = newCost;
+    nextCost = newNextCost;
+  }
+
+  public int compareTo(Hill other) {
+    int cmp = compareHeight(other);
+    return (cmp != 0) ? cmp : compareCost(other);
+  }
+
+  public int compareToMax(Hill other) {
+    int cmp = compareHeight(other);
+    return (cmp != 0) ? (-1*cmp) : compareCost(other);
+  }
+
+  public int compareHeight(Hill other) {
+    return this.height - other.height;
+  }
+
+  public int compareCost(Hill other) {
+    return (other.nextCost - other.cost) - (this.nextCost - this.cost);
+  }
+}

@@ -1,0 +1,55 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: milk
+*/
+import java.io.*;
+import java.util.*;
+
+class milk {
+  public static void main (String [] args) throws IOException {
+    String f = "milk.in";
+    String o = "milk.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+    int n = Integer.parseInt(st.nextToken());
+    int m = Integer.parseInt(st.nextToken());
+
+    TreeMap<Integer, Integer> farmers = new TreeMap<>();
+
+    for (int i = 0; i < m; i++) {
+      StringTokenizer stfarm = new StringTokenizer(in.readLine());
+      int p = Integer.parseInt(stfarm.nextToken());
+      int a = Integer.parseInt(stfarm.nextToken());
+
+      if (farmers.containsKey(p)) {
+	farmers.put(p, farmers.get(p) + a);
+      } else {
+	farmers.put(p, a);
+      }
+    }
+
+    int cost = 0;
+
+    while (n != 0) {
+      Map.Entry<Integer, Integer> entry = farmers.pollFirstEntry();
+      int p = entry.getKey();
+      int a = entry.getValue();
+
+      if (n >= a) {
+	cost += (p*a);
+	n -= a;
+      } else {
+	cost += (p*n);
+	n = 0;
+      }
+    }
+
+    out.println(cost);
+
+    out.close();
+  }
+}

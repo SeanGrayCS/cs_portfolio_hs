@@ -1,0 +1,47 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: dualpal
+*/
+import java.io.*;
+import java.util.*;
+
+class dualpal {
+  public static void main (String [] args) throws IOException {
+    String f = "dualpal.in";
+    String o = "dualpal.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+    int n = Integer.parseInt(st.nextToken());
+    int s = Integer.parseInt(st.nextToken());
+
+    int numPalin = 0;
+    for (int num = s+1; num <= Integer.MAX_VALUE; num++) {
+      boolean palin = false;
+      for (int b = 2; b <= 10; b++) {
+	String numStr = Integer.toString(num, b);
+	int len = numStr.length();
+
+	StringBuilder sb = new StringBuilder(numStr.substring((len+1)/2));
+
+	if (numStr.substring(0, len/2).equals(sb.reverse().toString())) {
+	  if (palin) {
+	    numPalin++;
+	    out.println("" + num);
+	    break;
+	  }
+	  palin = true;
+	}
+      }
+
+      if (numPalin >= n) {
+	break;
+      }
+    }
+
+    out.close();
+  }
+}

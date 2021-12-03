@@ -1,0 +1,71 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: beads
+*/
+import java.io.*;
+import java.util.*;
+
+class beads {
+  public static void main (String [] args) throws IOException {
+    String f = "beads.in";
+    String o = "beads.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    String pattern = in.readLine();
+    pattern += pattern;
+    StringTokenizer st = new StringTokenizer(pattern.replace("", " "));
+
+    int max = 0;
+
+    int left = 0;
+    int right = 0;
+
+    int prev = 2;
+
+    int numWhite = 0;
+    int whiteLeft = 0;
+
+    while (st.hasMoreTokens()) {
+      String cur = st.nextToken();
+      int current = cur.equals("r") ? 0 : cur.equals("b") ? 1 : 2;
+
+      if (prev == current || prev == 2 || current == 2) {
+	right++;
+      } else {
+	if (left + right > max) {
+	  max = left + right;
+	}
+	left = right + whiteLeft;
+	right = 1;
+	whiteLeft = numWhite;
+      }
+
+      if (current == 2) {
+	numWhite++;
+      } else {
+	numWhite = 0;
+      }
+
+      if (current != 2) {
+	prev = current;
+      }
+    }
+
+    if (left + right > max) {
+      max = left + right;
+    }
+
+    if (max > n) {
+      max = n;
+    }
+
+    out.println(max);
+
+    out.close();
+  }
+}

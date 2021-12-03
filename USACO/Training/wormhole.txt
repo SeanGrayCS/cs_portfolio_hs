@@ -1,0 +1,162 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: wormhole
+*/
+import java.io.*;
+import java.util.*;
+
+class wormhole {
+  public static void main (String [] args) throws IOException {
+    String f = "wormhole.in";
+    String o = "wormhole.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    WormNode[] nodeArr = new WormNode[n];
+    HashSet<Integer> ySet = new HashSet<>();
+
+    for (int i = 0; i < n; i++) {
+      StringTokenizer st = new StringTokenizer(in.readLine());
+
+      final int x = Integer.parseInt(st.nextToken());
+      final int y = Integer.parseInt(st.nextToken());
+
+      WormNode newNode = new WormNode(x, y);
+
+      if (ySet.contains(y)) {
+	for (WormNode node : nodeArr) {
+	  if (node != null && y == node.y) {
+	    if (x > node.x) {
+	      if (x - node.x < node.getRightDist()) {
+		node.setRightDist(x - node.x);
+		node.setRightNode(newNode);
+	      }
+	    } else if (node.x - x < newNode.getRightDist()) {
+	      newNode.setRightDist(node.x - x);
+	      newNode.setRightNode(node);
+	    }
+	  }
+	}
+      }
+
+      nodeArr[i] = newNode;
+      ySet.add(y);
+    }
+
+    out.println(greedyCombos(nodeArr));
+
+    out.close();
+  }
+
+  public static int greedyCombos (WormNode[] nodeArr) {
+
+    int numNodes = nodeArr.length;
+
+    int numStuck = 0;
+
+    ArrayList<int[]> comboList = new ArrayList<>();
+    comboList.add(new int[] {1, 0});
+
+    // Double Factorial of i - 1
+    int dFact = 1;
+
+    for (int i = 4; i <= numNodes; i+=2) {
+      for (int j = 0; j < i-1; j++) {
+	for (int k = dFact-1; k >= 0; k--) {
+	  int[] combo = Arrays.copyOf(comboList.get(k), i);
+
+	  // Pair j to i-1, pair what was paired with j to i-2
+	  if (j < i-2) {
+	    int l = combo[j];
+	    combo[i-2] = l;
+	    combo[l] = i-2;
+	  }
+	  combo[j] = i-1;
+	  combo[i-1] = j;
+
+	  if (i == numNodes && testCombo(combo, nodeArr)) {
+	    numStuck++;
+	  }
+	  comboList.add(combo);
+
+	  if (j==i-2) {
+	    comboList.remove(k);
+	  }
+	}
+      }
+      dFact *= (i-1);
+    }
+
+    return numStuck;
+  }
+
+  public static boolean testCombo (int[] combo, WormNode[] nodeArr) {
+
+    int len = combo.length;
+
+    for (int i = 0; i < len; i++) {
+      nodeArr[i].setEdgeNode(nodeArr[combo[i]]);
+    }
+
+    for (int i = 0; i < len; i++) {
+      // Start from nodeArr[i] and check if cow gets stuck
+      HashSet<WormNode> passedNodes = new HashSet<>();
+      WormNode curNode = nodeArr[i];
+      passedNodes.add(curNode);
+      while (curNode.getRightNode() != null) {
+	curNode = curNode.getRightNode().getEdgeNode();
+	if (!passedNodes.add(curNode)) {
+	  return true;
+	}
+      }
+    }
+
+    return false;
+  }
+}
+
+class WormNode {
+  public final int x;
+  public final int y;
+
+  private int rightDist;
+  private WormNode rightNode;
+
+  private WormNode edgeNode;
+
+  public WormNode (int x, int y) {
+    this.x = x;
+    this.y = y;
+    this.rightDist = Integer.MAX_VALUE;
+    this.rightNode = null;
+    this.edgeNode = null;
+  }
+
+  public int getRightDist () {
+    return rightDist;
+  }
+
+  public WormNode getRightNode () {
+    return rightNode;
+  }
+
+  public WormNode getEdgeNode () {
+    return edgeNode;
+  }
+
+  public void setRightDist (int rightDist) {
+    this.rightDist = rightDist;
+  }
+
+  public void setRightNode (WormNode rightNode) {
+    this.rightNode = rightNode;
+  }
+
+  public void setEdgeNode (WormNode edgeNode) {
+    this.edgeNode = edgeNode;
+  }
+}

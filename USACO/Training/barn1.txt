@@ -1,0 +1,74 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: barn1
+*/
+import java.io.*;
+import java.util.*;
+
+class barn1 {
+  public static void main (String [] args) throws IOException {
+    String f = "barn1.in";
+    String o = "barn1.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+    int m = Integer.parseInt(st.nextToken());
+    int s = Integer.parseInt(st.nextToken());
+    int c = Integer.parseInt(st.nextToken());
+
+    boolean[] hasCow = new boolean[s];
+
+    int lstIdx = s-1;
+    int hstIdx = 0;
+    for (int i = 0; i < c; i++) {
+      int idx = Integer.parseInt(in.readLine())-1;
+      hasCow[idx] = true;
+      if (lstIdx > idx) {
+	lstIdx = idx;
+      }
+      if (hstIdx < idx) {
+	hstIdx = idx;
+      }
+    }
+
+    HashMap<Integer, Integer> boardMap = new HashMap<>();
+    boardMap.put(lstIdx, hstIdx);
+    int blocked = 1 + hstIdx - lstIdx;
+    m--;
+
+    PriorityQueue<int[]> pq = new PriorityQueue<>((x, y) -> Integer.compare(((int[]) y)[0], ((int[]) x)[0]));
+
+    int before = lstIdx;
+    for (int i = lstIdx+1; i <= hstIdx; i++) {
+      if (hasCow[i]) {
+	if (i != before+1) {
+	  pq.offer(new int[] {i-before-1, before, i});
+	}
+	before = i;
+      }
+    }
+
+    while (m > 0 && !pq.isEmpty()) {
+      int[] section = pq.poll();
+      int boardIdx = section[1];
+
+      while (!boardMap.containsKey(boardIdx)) {
+	boardIdx--;
+      }
+
+      int end = boardMap.replace(boardIdx, section[1]);
+      boardMap.put(section[2], end);
+
+      blocked -= section[0];
+
+      m--;
+    }
+
+    out.println(blocked);
+
+    out.close();
+  }
+}

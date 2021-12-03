@@ -1,0 +1,73 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: combo
+*/
+import java.io.*;
+import java.util.*;
+
+class combo {
+
+  private static HashSet<Integer> comboSet;
+  private static int n;
+
+  public static void main (String [] args) throws IOException {
+    String f = "combo.in";
+    String o = "combo.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    n = Integer.parseInt(in.readLine());
+    comboSet = new HashSet<>();
+
+    int[] johnCombo = new int[3];
+    int[] masterCombo = new int[3];
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+    for (int i = 0; i < 3; i++) {
+      johnCombo[i] = Integer.parseInt(st.nextToken());
+    }
+
+    st = new StringTokenizer(in.readLine());
+    for (int i = 0; i < 3; i++) {
+      masterCombo[i] = Integer.parseInt(st.nextToken());
+    }
+
+    fillCombos(johnCombo, 0);
+    fillCombos(masterCombo, 0);
+
+    out.println(comboSet.size());
+
+    out.close();
+  }
+
+  private static void fillCombos (int[] combo, int idx) {
+    if (idx == 3) {
+      int comboInt = (combo[0]-1)*n*n + (combo[1]-1)*n + combo[2]-1;
+      comboSet.add(comboInt);
+      return;
+    }
+
+    for (int i = -2; i < 3; i++) {
+      int[] nextCombo = new int[3];
+      nextCombo[0] = combo[0]; nextCombo[1] = combo[1]; nextCombo[2] = combo[2]; nextCombo[idx] = combo[idx] + i;
+
+      if (nextCombo[idx] < 1) {
+	nextCombo[idx] += n;
+      }
+      if (nextCombo[idx] > n) {
+	nextCombo[idx] -= n;
+      }
+
+      if (nextCombo[idx] < 1) {
+	nextCombo[idx] = 1;
+      }
+      if (nextCombo[idx] > n) {
+	nextCombo[idx] = n;
+      }
+
+      fillCombos(nextCombo, idx+1);
+    }
+  }
+}

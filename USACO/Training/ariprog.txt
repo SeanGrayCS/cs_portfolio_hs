@@ -1,0 +1,84 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: ariprog
+*/
+import java.io.*;
+import java.util.*;
+
+class ariprog {
+  public static void main (String [] args) throws IOException {
+    String f = "ariprog.in";
+    String o = "ariprog.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+    int m = Integer.parseInt(in.readLine());
+
+    HashSet<Integer> bisqrSet = new HashSet<>();
+    ArrayList<Integer> bisqrList = new ArrayList<>();
+
+    boolean sort = false;;
+    for (int p = 0; p <= m; p++) {
+      for (int q = p; q <= m; q++) {
+	int bisqr = (p*p)+(q*q);
+	if (bisqrSet.contains(bisqr)) {
+	  continue;
+	}
+	if (sort) {
+	  int idx = Collections.binarySearch(bisqrList, bisqr);
+
+	  if (idx >= 0) {
+	    continue;
+	  }
+	  bisqrSet.add(bisqr);
+	  idx++; idx*=-1;
+	  if (idx >= bisqrList.size()) {
+	    sort = false;
+	  }
+
+	  bisqrList.add(idx, bisqr);
+	  continue;
+	}
+	bisqrSet.add(bisqr);
+	bisqrList.add(bisqr);
+      }
+      sort = true;
+    }
+
+    int maxBisqr = m*m*2;
+
+    boolean sequenceExists = false;
+
+    for (int b = 1; b*(n-1) <= maxBisqr; b++) {
+      for (int i = 0; i < bisqrList.size(); i++) {
+	int a = bisqrList.get(i);
+
+	int lastInt = a + b*(n-1);
+	if (lastInt > maxBisqr || !bisqrSet.contains(lastInt)) {
+	  continue;
+	}
+
+	boolean sequenceWorks = true;
+	for (int k = 1; k < n-1; k++) {
+	  if (!bisqrSet.contains(a + k*b)) {
+	    sequenceWorks = false;
+	    break;
+	  }
+	}
+	if (sequenceWorks) {
+	  sequenceExists = true;
+	  out.println(a + " " + b);
+	}
+      }
+    }
+
+    if (!sequenceExists) {
+      out.println("NONE");
+    }
+
+    out.close();
+  }
+}

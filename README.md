@@ -12,3 +12,5 @@ CS Competition Work - contains programs written during some official competition
 CSUIL-Practice - contains programs written as practice for CSUIL competitions.
 
 Coursera Courses - contains coursework from computer science coursera courses that I have taken.
+
+USACO - contains work done for USACO practice. Currently working through USACO training.

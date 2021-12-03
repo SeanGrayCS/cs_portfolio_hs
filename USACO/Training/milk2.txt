@@ -1,0 +1,74 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: milk2
+*/
+import java.io.*;
+import java.util.*;
+
+class milk2 {
+  public static void main (String [] args) throws IOException {
+    String f = "milk2.in";
+    String o = "milk2.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    PriorityQueue<int[]> pq = new PriorityQueue<>(n, (x, y) -> Integer.compare(((int[]) x)[0], ((int[]) y)[0]));
+
+    for (int i = 0; i < n; i++) {
+      StringTokenizer st = new StringTokenizer(in.readLine());
+
+      int start = Integer.parseInt(st.nextToken());
+      int end = Integer.parseInt(st.nextToken());
+
+      pq = insertIn(pq, new int[] {start, end});
+    }
+
+    int max = 0, maxNot = 0;
+
+    int lastMilked = pq.peek()[0];
+
+    while (!pq.isEmpty()) {
+      int[] interval = (int[]) pq.poll();
+      int time = interval[1] - interval[0];
+      int timeSince = interval[0] - lastMilked;
+      lastMilked = interval[1];
+
+      if (time > max) {
+	max = time;
+      }
+      if (timeSince > maxNot) {
+	maxNot = timeSince;
+      }
+    }
+
+    out.println(max + " " + maxNot);
+
+    out.close();
+  }
+
+  public static PriorityQueue<int[]> insertIn(PriorityQueue<int[]> pq, int[] interval) {
+    if (pq.isEmpty()) {
+      pq.offer(interval);
+      return pq;
+    }
+
+    int[] head = pq.poll();
+
+    if (interval[1] < head[0]) {
+      pq.offer(interval);
+    } else if (interval[0] > head[1]) {
+      pq = insertIn(pq, interval);
+    } else {
+      head[0] = (interval[0] < head[0]) ? interval[0] : head[0];
+      head[1] = (interval[1] > head[1]) ? interval[1] : head[1];
+      return insertIn(pq, head);
+    }
+
+    pq.offer(head);
+    return pq;
+  }
+}

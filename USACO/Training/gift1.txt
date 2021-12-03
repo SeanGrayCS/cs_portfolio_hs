@@ -1,0 +1,55 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: gift1
+*/
+import java.io.*;
+import java.util.*;
+
+class gift1 {
+  public static void main (String [] args) throws IOException {
+    String f = "gift1.in";
+    String o = "gift1.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int np = Integer.parseInt(in.readLine());
+
+    LinkedHashMap<String, Integer> moneyMap = new LinkedHashMap<>();
+
+    for (int i = 0; i < np; i++) {
+      moneyMap.put(in.readLine(), 0);
+    }
+
+    for (int i = 0; i < np; i++) {
+      String giver = in.readLine();
+
+      StringTokenizer st = new StringTokenizer(in.readLine());
+      int givenRaw = Integer.parseInt(st.nextToken());
+      int numGifted = Integer.parseInt(st.nextToken());
+
+      if (numGifted == 0) {
+	continue;
+      }
+
+      int givenEach = (int) givenRaw/numGifted;
+      int givenAct = givenEach * numGifted;
+
+      moneyMap.compute(giver, (k, v) -> (v - givenAct));
+
+      for (int j = 0; j < numGifted; j++) {
+	moneyMap.compute(in.readLine(), (k, v) -> (v + givenEach));
+      }
+    }
+
+    Iterator it = moneyMap.entrySet().iterator();
+
+    while (it.hasNext()) {
+      Map.Entry entry = (Map.Entry) it.next();
+      out.println(entry.getKey() + " " + entry.getValue());
+    }
+
+    out.close();
+  }
+}

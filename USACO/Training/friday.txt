@@ -1,0 +1,54 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: friday
+*/
+import java.io.*;
+import java.util.*;
+
+class friday {
+  public static void main (String [] args) throws IOException {
+    String f = "friday.in";
+    String o = "friday.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    int[] day13 = new int[7];
+
+    int nextDay = 0;
+    for (int j = 0; j < n; j++) {
+      int year = 1900+j;
+      boolean leap = (year % 4 == 0) && (!(year % 100 == 0) || (year % 400 == 0));
+
+      for (int i = 0; i < 13; i++) {
+	if (i == 7) {
+	  continue;
+	}
+	int numDays = 31-(i%2);
+
+	if (i == 1) {
+	  numDays = leap ? 29 : 28;
+	}
+
+	day13[nextDay]++;
+
+	nextDay += numDays - 28;
+	if (nextDay > 6) {
+	  nextDay -= 7;
+	}
+      }
+    }
+
+    String output = "";
+    for (int day : day13) {
+      output += day + " ";
+    }
+
+    out.println(output.substring(0, output.length()-1));
+
+    out.close();
+  }
+}

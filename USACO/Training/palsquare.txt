@@ -1,0 +1,32 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: palsquare
+*/
+import java.io.*;
+import java.util.*;
+
+class palsquare {
+  public static void main (String [] args) throws IOException {
+    String f = "palsquare.in";
+    String o = "palsquare.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int b = Integer.parseInt(in.readLine());
+
+    for (int n = 1; n <= 300; n++) {
+      int nsqr = n*n;
+      String nsqrStr = Integer.toString(nsqr, b);
+      int len = nsqrStr.length();
+
+      StringBuilder sb = new StringBuilder(nsqrStr.substring((len+1)/2));
+      if (nsqrStr.substring(0, len/2).equals(sb.reverse().toString())) {
+	out.println(Integer.toString(n, b).toUpperCase() + " " + nsqrStr.toUpperCase());
+      }
+    }
+
+    out.close();
+  }
+}
