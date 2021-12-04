@@ -5,6 +5,8 @@ public class Santino {
     private static int[][] grid;
     private static boolean[][] visits;
 
+    private static PriorityQueue<Path> pq;
+
     public static void main(String[] args) throws Exception {
         String file = "santino";
         Scanner input = new Scanner(new File("./jud/" + file + ".dat"));
@@ -69,7 +71,7 @@ public class Santino {
                 }
             }
 
-            PriorityQueue<Path> pq = new PriorityQueue<>();
+            pq = new PriorityQueue<>();
 
             Path start = new Path(startRow, startCol, grid[startRow][startCol], 0);
 
@@ -78,9 +80,7 @@ public class Santino {
 
             while (!pq.isEmpty() && !pq.peek().atPoint(endRow, endCol)) {
                 Path cur = pq.poll();
-
-                HashSet<Path> newPaths = getPaths(cur);
-                newPaths.forEach((path) -> pq.offer(path));
+                getPaths(cur);
             }
 
             if (pq.isEmpty()) {
@@ -92,9 +92,7 @@ public class Santino {
 
     }
 
-    private static HashSet<Path> getPaths(Path path) {
-        HashSet<Path> newPaths = new HashSet<>();
-
+    private static void getPaths(Path path) {
         int row = path.curRow;
         int col = path.curCol;
 
@@ -135,12 +133,10 @@ public class Santino {
             
             if (!visits[row][col]) {
                 Path nextPath = new Path(row, col, grid[row][col], path.steps+1);
-                newPaths.add(nextPath);
+                pq.offer(nextPath);
                 visits[row][col] = true;
             }
         }
-
-        return newPaths;
     }
 }
 
