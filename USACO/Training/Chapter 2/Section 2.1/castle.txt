@@ -1,0 +1,274 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: castle
+*/
+import java.io.*;
+import java.util.*;
+
+@SuppressWarnings("unchecked")
+class castle {
+  private static int n;
+  private static int m;
+
+  private static int numRooms;
+  private static int maxSize;
+
+  private static Room[] adjRooms;
+
+  private static HashSet<Room> roomSet;
+
+  public static void main (String [] args) throws IOException {
+    String f = "castle.in";
+    String o = "castle.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+
+    n = Integer.parseInt(st.nextToken());
+    m = Integer.parseInt(st.nextToken());
+
+    numRooms = 0;
+    maxSize = 0;
+
+    adjRooms = new Room[m*n];
+    roomSet = new HashSet<>();
+
+    for (int i = 0; i < m; i++) {
+      st = new StringTokenizer(in.readLine());
+      for (int j = 0; j < n; j++) {
+	addRoom(i, j, Integer.parseInt(st.nextToken()));
+      }
+    }
+
+    out.println(numRooms);
+    out.println(maxSize);
+
+    PriorityQueue<Wall> pq = new PriorityQueue<>();
+    Iterator<Room> it = roomSet.iterator();
+    while (it.hasNext()) {
+      Room room = it.next();
+      Wall wall = room.getBestWall();
+
+      if (wall != null) {
+	pq.offer(wall);
+      }
+    }
+
+    Wall bestWall = pq.peek();
+    out.println(bestWall.getSize());
+    out.println(bestWall);
+
+    out.close();
+  }
+
+  private static void addRoom(int row, int col, int val) {
+    boolean connected = false;
+    int idx = row*n+col;
+
+    Room westRoom = null;
+    if (col > 0) {
+      westRoom = adjRooms[idx-1];
+    }
+
+    Room northRoom = null;
+    if (row > 0) {
+       northRoom = adjRooms[idx-n];
+    }
+
+    // Connected West
+    if ((val & 1) == 0) {
+      adjRooms[idx] = westRoom;
+      westRoom.push(idx);
+      if (westRoom.size() > maxSize) {
+	maxSize = westRoom.size();
+      }
+      connected = true;
+    }
+
+    // Connected North
+    if ((val & 2) == 0) {
+      if (connected) {
+	if (!northRoom.equals(westRoom)) {
+	  westRoom.addWalls(northRoom);
+
+	  while (!northRoom.isEmpty()) {
+	    int northSqr = northRoom.pop();
+	    adjRooms[northSqr] = westRoom;
+	    westRoom.push(northSqr);
+	  }
+
+	  numRooms--;
+	  if (westRoom.size() > maxSize) {
+	    maxSize = westRoom.size();
+	  }
+	}
+      } else {
+	adjRooms[idx] = northRoom;
+	northRoom.push(idx);
+	if (northRoom.size() > maxSize) {
+	  maxSize = northRoom.size();
+	}
+	connected = true;
+      }
+    }
+
+    if (!connected) {
+      Room newRoom = new Room();
+      adjRooms[idx] = newRoom;
+      newRoom.push(idx);
+      numRooms++;
+      if (1 > maxSize) {
+	maxSize = 1;
+      }
+
+      roomSet.add(newRoom);
+    }
+
+    Room curRoom = adjRooms[idx];
+
+    if (row > 0 && ((val & 2) != 0) && !northRoom.equals(curRoom)) {
+      Wall wall = new Wall(row, col, true, northRoom);
+      curRoom.addWall(wall);
+    }
+
+    if (col > 0 && ((val & 1) != 0) && !westRoom.equals(curRoom)) {
+      Wall wall = new Wall(row, col-1, false, curRoom);
+      westRoom.addWall(wall);
+    }
+  }
+}
+
+class Room extends Stack<Integer> {
+  private LinkedList<Wall> wallList;
+
+  private Stack<Wall> wallsHere;
+
+  public Room() {
+    super();
+    wallList = new LinkedList<>();
+    wallsHere = new Stack<>();
+  }
+
+  public void addWall(Wall wall) {
+    wall.setLocation(this);
+    wallList.add(wall);
+  }
+
+  public LinkedList<Wall> getWalls() {
+    return wallList;
+  }
+
+  public Wall getBestWall() {
+    if (wallList.isEmpty()) {
+      return null;
+    } 
+    return Collections.min(wallList);
+  }
+
+  public Stack<Wall> getWallsHere() {
+    return wallsHere;
+  }
+
+  public void addWalls(Room room) {
+    LinkedList<Wall> newWalls = room.getWalls();
+    Wall wall;
+
+    while (!newWalls.isEmpty()) {
+      wall = newWalls.poll();
+
+      if (!wall.getConnection().equals(this)) {
+	this.addWall(wall);
+      }
+    }
+
+    Stack<Wall> newWallsHere = room.getWallsHere();
+    while (!newWallsHere.isEmpty()) {
+      wall = newWallsHere.pop();
+
+      if (!wall.getLocation().equals(this)) {
+	this.addWallToHere(wall);
+      }
+    }
+  }
+
+  public void addWallToHere(Wall wall) {
+    wallsHere.push(wall);
+    wall.setConnection(this);
+  }
+}
+
+class Wall implements Comparable<Wall> {
+  private int row;
+  private int col;
+  private boolean north;
+
+  private Room connection;
+  private Room location;
+
+  public Wall (int row, int col, boolean north, Room connection) {
+    this.row = row;
+    this.col = col;
+    this.north = north;
+    this.connection = connection;
+    connection.addWallToHere(this);
+  }
+
+  public int getRow() {
+    return row;
+  }
+
+  public int getCol() {
+    return col;
+  }
+
+  public String getDirection() {
+    return north ? "N" : "E";
+  }
+
+  public Room getConnection() {
+    return connection;
+  }
+
+  public Room getLocation() {
+    return location;
+  }
+
+  public int getSize() {
+    return location.size() + connection.size();
+  }
+
+  public void setLocation(Room room) {
+    this.location = room;
+  }
+
+  public void setConnection(Room room) {
+    this.connection = room;
+  }
+
+  public int compareTo(Wall o) {
+    int cmp = o.getSize() - this.getSize();
+    if (cmp != 0) {
+      return cmp;
+    }
+
+    cmp = this.getCol() - o.getCol();
+    if (cmp != 0) {
+      return cmp;
+    }
+
+    cmp = o.getRow() - this.getRow();
+    if (cmp != 0) {
+      return cmp;
+    }
+
+    return this.north ? -1 : 1;
+  }
+
+  public String toString() {
+    return (row+1) + " " + (col+1) + " " + getDirection();
+  }
+
+}

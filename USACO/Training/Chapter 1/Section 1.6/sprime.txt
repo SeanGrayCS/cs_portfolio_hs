@@ -1,0 +1,69 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: sprime
+*/
+import java.io.*;
+import java.util.*;
+
+class sprime {
+  private static Queue<Integer> sprimes;
+
+  public static void main (String [] args) throws IOException {
+    String f = "sprime.in";
+    String o = "sprime.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    sprimes = new LinkedList<>(Arrays.asList(2, 3, 5, 7));
+
+    for (int i = 1; i < n; i++) {
+      int primes = sprimes.size();
+      for (int j = 0; j < primes; j++) {
+	int prevPrime = sprimes.poll();
+	for (int k = 1; k < 10; k+=2) {
+	  int newValue = prevPrime*10 + k;
+	  addIfPrime(newValue);
+	}
+      }
+    }
+
+    while (!sprimes.isEmpty()) {
+      out.println(sprimes.poll());
+    }
+
+    out.close();
+  }
+
+  private static void addIfPrime(int value) {
+    if (isPrime(value)) {
+      sprimes.offer(value);
+    }
+  }
+
+  private static boolean isPrime(int value) {
+    if (value % 2 == 0 || value % 3 == 0) {
+      return false;
+    }
+
+    int sqrtValue = (int) Math.sqrt(value);
+
+    for (int i = 6; i-1 <= sqrtValue; i+=6) {
+      if (value % (i-1) == 0) {
+	return false;
+      }
+      if (value % i == 0) {
+	return false;
+      }
+      if (value % (i+1) == 0) {
+	return false;
+      }
+    }
+
+    return true;
+  }
+
+}

@@ -1,0 +1,98 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: numtri
+*/
+import java.io.*;
+import java.util.*;
+
+class numtri {
+  private static int r;
+  private static int[][] tri;
+  private static boolean[][] visits;
+
+  private static PriorityQueue<Path> pq;
+
+  private static int bestSum;
+
+  public static void main (String [] args) throws IOException {
+    String f = "numtri.in";
+    String o = "numtri.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    r = Integer.parseInt(in.readLine());
+
+    tri = new int[r][];
+    visits = new boolean[r][];
+
+    pq = new PriorityQueue<>();
+
+    bestSum = 0;
+
+    for (int i = 0; i < r; i++) {
+      StringTokenizer st = new StringTokenizer(in.readLine());
+      tri[i] = new int[i+1];
+      visits[i] = new boolean[i+1];
+      for (int j = 0; j < i+1; j++) {
+	tri[i][j] = Integer.parseInt(st.nextToken());
+      }
+    }
+
+    Path path = new Path(0, 0, tri[0][0]);
+    pq.offer(path);
+
+    while (!pq.isEmpty()) {
+      fillPaths(pq.poll());
+    }
+
+    out.println(bestSum);
+
+    out.close();
+  }
+
+  private static void fillPaths(Path path) {
+    addPath(path.row+1, path.idx, path.sum);
+    addPath(path.row+1, path.idx+1, path.sum);
+  }
+
+  private static void addPath(int row, int idx, int prevSum) {
+    if (row >= r || idx >= tri[row].length) {
+      return;
+    }
+
+    if (visits[row][idx]) {
+      return;
+    }
+
+    int sum = prevSum + tri[row][idx];
+
+    if (row < r-1) {
+      pq.offer(new Path(row, idx, sum));
+    } else if (sum > bestSum) {
+      bestSum = sum;
+    }
+
+    visits[row][idx] = true;
+  }
+
+}
+
+class Path implements Comparable<Path> {
+  public int row;
+  public int idx;
+  public int sum;
+
+  public Path (int row, int idx, int sum) {
+    this.row = row;
+    this.idx = idx;
+    this.sum = sum;
+  }
+
+  @Override
+  public int compareTo(Path o) {
+    int rowDif = this.row - o.row;
+    return (rowDif != 0) ? rowDif : (o.sum - this.sum);
+  }
+}
