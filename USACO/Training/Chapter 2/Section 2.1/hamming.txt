@@ -1,0 +1,151 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: hamming
+*/
+import java.io.*;
+import java.util.*;
+
+class hamming {
+  private static PrintWriter out;
+
+  private static int n;
+  private static int b;
+  private static int d;
+
+  private static int numCodes;
+
+  public static void main (String [] args) throws IOException {
+    String f = "hamming.in";
+    String o = "hamming.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    StringTokenizer st = new StringTokenizer(in.readLine());
+
+    n = Integer.parseInt(st.nextToken());
+    b = Integer.parseInt(st.nextToken());
+    d = Integer.parseInt(st.nextToken());
+
+    numCodes = (int) Math.pow(2, b+1);
+
+    Path.createHams(d, numCodes);
+
+    int i = 0;
+    while (i < numCodes) {
+      if (nextPath(new Path(i, n))) {
+	break;
+      }
+      i++;
+    }
+
+    out.close();
+  }
+
+  private static boolean nextPath(Path path) {
+    if (path.size() == n) {
+      out.print(path);
+      return true;
+    }
+
+    int next = path.getNextPath();
+    while (next != -1) {
+      if (nextPath(new Path(next, path, n))) {
+	return true;
+      }
+      next = path.getNextPath();
+    }
+
+    return false;
+  }
+
+}
+
+class Path {
+  private int value;
+  private int size;
+  private String pathStr;
+
+  private PriorityQueue<Integer> possiblePaths;
+
+  private static HashSet<Integer> hams;
+
+  public static void createHams(int hammingDist, int numCodes) {
+    hams = new HashSet<>();
+
+    for (int i = 0; i < numCodes; i++) {
+      if (Integer.bitCount(i) >= hammingDist) {
+	hams.add(i);
+      }
+    }
+  }
+
+  public Path(int value, int n) {
+    this.value = value;
+    this.size = 1;
+    this.pathStr = "" + value;
+    if (n == 1) {
+      this.pathStr += "\n";
+    }
+
+    this.possiblePaths = new PriorityQueue<>();
+    fillPossiblePaths(this);
+  }
+
+  public Path(int value, Path old, int n) {
+    this.value = value;
+    this.size = old.size + 1;
+    this.pathStr = old.pathStr;
+
+    if (old.size % 10 == 0) {
+      this.pathStr += "\n";
+    } else {
+      this.pathStr += " ";
+    }
+
+    this.pathStr += value;
+    if (this.size == n) {
+      this.pathStr += "\n";
+    }
+
+    this.possiblePaths = new PriorityQueue<>();
+    fillPossiblePaths(this, old.possiblePaths);
+  }
+
+  private static void fillPossiblePaths(Path path) {
+    Iterator<Integer> it = hams.iterator();
+    while (it.hasNext()) {
+      int possible = it.next() ^ path.value;
+      if (possible > path.value) {
+	path.possiblePaths.offer(possible);
+      }
+    }
+  }
+
+  private static void fillPossiblePaths(Path path, PriorityQueue<Integer> old) {
+    Iterator<Integer> it = old.iterator();
+    while (it.hasNext()) {
+      int possible = it.next();
+      if (hams.contains(possible ^ path.value)) {
+	path.possiblePaths.offer(possible);
+      }
+    }
+  }
+
+  public int size() {
+    return size;
+  }
+
+  public int getNextPath() {
+    if (!possiblePaths.isEmpty()) {
+      int path = possiblePaths.poll();
+      return path;
+    }
+    return -1;
+  }
+
+  public String toString() {
+    return pathStr;
+  }
+}
