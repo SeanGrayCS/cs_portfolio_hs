@@ -1,0 +1,98 @@
+/*
+ID: sean.gr1
+LANG: JAVA
+TASK: sort3
+*/
+import java.io.*;
+import java.util.*;
+
+class sort3 {
+  private static int numSwaps;
+
+  private static int[] sections;
+  private static byte[] records;
+
+  private static final byte ONE = 1, TWO = 2, THREE = 3;
+
+  public static void main (String [] args) throws IOException {
+    String f = "sort3.in";
+    String o = "sort3.out";
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(o)));
+
+    int n = Integer.parseInt(in.readLine());
+
+    sections = new int[4];
+    records = new byte[n];
+
+    for (int i = 0; i < n; i++) {
+      byte key = Byte.parseByte(in.readLine());
+      records[i] = key;
+
+      while (key < 4) {
+        sections[key]++;
+	key++;
+      }
+    }
+
+    // Loop 1 - Find the 1s in the 2 section and swap with 2s in the 1 section
+    swapValues(ONE, TWO);
+
+    // Loop 2 - Find the 1s in the 3 section and swap with 3s in the 1 section
+    swapValues(ONE, THREE);
+
+    // Loop 3 - Find any new 1s in the 2 section and swap with 2s in the 1 section
+    swapValues(ONE, TWO);
+
+    // Loop 4 - Find the 2s in the 3 section and swap with 3s in the 2 section
+    swapValues(TWO, THREE);
+
+    out.println(numSwaps);
+
+    out.close();
+  }
+
+  private static void swap(int idx1, int idx2) {
+    byte val1 = records[idx1];
+    records[idx1] = records[idx2];
+    records[idx2] = val1;
+
+    numSwaps++;
+  }
+
+  private static void swapValues(byte val1, byte val2) {
+    int idx1 = idxInSection(val1, val2);
+    if (idx1 == -1) {
+      return;
+    }
+
+    int idx2 = idxInSection(val2, val1);
+    if (idx2 == -1) {
+      idx2 = idxInSection(val2, (byte) (val1^val2));
+    }
+
+    while (idx2 != -1) {
+      swap(idx1, idx2);
+
+      idx1 = idxInSection(val1, val2);
+      if (idx1 == -1) {
+	return;
+      }
+
+      idx2 = idxInSection(val2, val1);
+      if (idx2 == -1) {
+	idx2 = idxInSection(val2, (byte) (val1^val2));
+      }
+    }
+  }
+
+  private static int idxInSection(byte value, byte section) {
+    for (int i = sections[section-1]; i < sections[section]; i++) {
+      if (records[i] == value) {
+	return i;
+      }
+    }
+    return -1;
+  }
+}
