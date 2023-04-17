@@ -1,5 +1,5 @@
-# cs_portfolio
-Portfolio of some CS work done in High School (2018-2022).
+# cs_portfolio_hs
+Portfolio of some CS work done in High School (2018-2022). I was not especially diligent in adding all work to this repository, so some CS work is missing.
 
 CS2 Labs - contains most work from AP Computer Science A (2019-2020).
 
